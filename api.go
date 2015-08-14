@@ -44,7 +44,7 @@ func (api *API) RenderSummary(rw http.ResponseWriter) {
     }
 
 	for listen, proxy := range api.Proxies.Items {
-		buffer.WriteString(fmt.Sprintf(":%v => %v\n", listen, proxy.Target))
+		buffer.WriteString(fmt.Sprintf("%v => %v\n", listen, proxy.Target))
 	}
 
 	rw.Write(buffer.Bytes())
