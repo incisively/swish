@@ -8,7 +8,7 @@ import (
 )
 
 type API struct {
-  Proxies *ProxyCollection
+	Proxies *ProxyCollection
 }
 
 func NewAPI() *API {
@@ -21,10 +21,10 @@ func (api *API) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    params := &ProxyParams{
-        Listen: r.FormValue("listen"),
-        Target: r.FormValue("target"),
-    }
+	params := &ProxyParams{
+		Listen: r.FormValue("listen"),
+		Target: r.FormValue("target"),
+	}
 
 	if !params.ValidateForMethod(r.Method) {
 		log.Printf("ERROR: Invalid params: %v", params.Errors)
@@ -32,16 +32,16 @@ func (api *API) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    api.UpdateProxy(params, rw)
+	api.UpdateProxy(params, rw)
 }
 
 func (api *API) RenderSummary(rw http.ResponseWriter) {
 	var buffer bytes.Buffer
 	buffer.WriteString("SUMMARY\n\n")
 
-    if len(api.Proxies.Items) == 0 {
-        buffer.WriteString("Nothing going on.\n")
-    }
+	if len(api.Proxies.Items) == 0 {
+		buffer.WriteString("Nothing going on.\n")
+	}
 
 	for listen, proxy := range api.Proxies.Items {
 		buffer.WriteString(fmt.Sprintf("%v => %v\n", listen, proxy.Target))
@@ -51,24 +51,24 @@ func (api *API) RenderSummary(rw http.ResponseWriter) {
 }
 
 func (api *API) UpdateProxy(params *ProxyParams, rw http.ResponseWriter) {
-    var proxy Proxy
-    var logAction string
+	var proxy Proxy
+	var logAction string
 
-    api.Proxies.Lock()
+	api.Proxies.Lock()
 
-    if existing, ok := api.Proxies.Items[params.Listen]; ok {
-        proxy = existing
-        logAction = "UPDATED"
-    } else {
-        proxy = *NewProxy(params)
-        proxy.Start()
-        logAction = "CREATED"
-    }
+	if existing, ok := api.Proxies.Items[params.Listen]; ok {
+		proxy = existing
+		logAction = "UPDATED"
+	} else {
+		proxy = *NewProxy(params)
+		proxy.Start()
+		logAction = "CREATED"
+	}
 
-    proxy.SetTarget(params.Target)
-    api.Proxies.Items[params.Listen] = proxy
+	proxy.SetTarget(params.Target)
+	api.Proxies.Items[params.Listen] = proxy
 
-    api.Proxies.Unlock()
+	api.Proxies.Unlock()
 
-    log.Printf("%v: %v => %v", logAction, proxy.Listen, proxy.Target)
+	log.Printf("%v: %v => %v", logAction, proxy.Listen, proxy.Target)
 }

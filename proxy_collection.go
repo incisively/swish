@@ -1,16 +1,16 @@
 package main
 
 import (
-  "sync"
+	"sync"
 )
 
 type ProxyCollection struct {
-  sync.RWMutex
-  Items map[string]Proxy
+	sync.RWMutex
+	Items map[string]Proxy
 }
 
 func NewProxyCollection() *ProxyCollection {
-    return &ProxyCollection{
-        Items: make(map[string]Proxy),
-    }
+	return &ProxyCollection{
+		Items: make(map[string]Proxy),
+	}
 }

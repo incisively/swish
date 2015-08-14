@@ -34,7 +34,6 @@ func (proxy *Proxy) SetTarget(target string) {
 }
 
 func (proxy *Proxy) Start() {
-	// listen := fmt.Sprintf(":%v", proxy.Port)
 	go http.ListenAndServe(proxy.Listen, proxy.Handler)
 }
 
