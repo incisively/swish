@@ -17,16 +17,13 @@ socat TCP-LISTEN:12343,fork,reuseaddr SYSTEM:"echo HTTP/1.0 200; echo; echo Targ
 TARGET_3=$!
 
 function finish {
-  teardown
+  kill $SWISH
   kill $TARGET_1
   kill $TARGET_2
   kill $TARGET_3
 }
 trap finish EXIT
 
-function teardown {
-  kill $SWISH
-}
 
 function assert_equal {
   echo "Expected '$1', got '$2'"
