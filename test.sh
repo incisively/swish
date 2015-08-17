@@ -9,7 +9,7 @@ TARGET_2=-1
 TARGET_3=-1
 
 echo "Setting up..."
-socat TCP-LISTEN:12341,fork,reuseaddr SYSTEM:"echo HTTP/1.0 200; echo; echo Target 1" > /dev/null &
+socat TCP-LISTEN:12341,fork,reuseaddr SYSTEM:"sleep 1; echo HTTP/1.0 200; echo; echo Target 1" > /dev/null &
 TARGET_1=$!
 socat TCP-LISTEN:12342,fork,reuseaddr SYSTEM:"echo HTTP/1.0 200; echo; echo Target 2" > /dev/null &
 TARGET_2=$!
@@ -17,6 +17,7 @@ socat TCP-LISTEN:12343,fork,reuseaddr SYSTEM:"echo HTTP/1.0 200; echo; echo Targ
 TARGET_3=$!
 
 function finish {
+  rm *.tmp
   kill $SWISH
   kill $TARGET_1
   kill $TARGET_2
@@ -43,6 +44,7 @@ sleep 0.5
 
 # tests
 
+# test that creating distinct proxies works
 echo
 echo "Test: Create listeners"
 curl $SWISH_URL -d "listen=:12340&target=localhost:12341" --silent
@@ -52,10 +54,15 @@ assert_equal 'Target 1' "$response"
 response=$(curl localhost:12349 --silent)
 assert_equal 'Target 3' "$response"
 
+# test that updating works, and also that any in-flight requests are unaffected
 echo
 echo "Test: Update listener"
+curl localhost:12340 --silent > response.tmp &
+sleep 0.1
 curl $SWISH_URL -d "listen=:12340&target=localhost:12342" --silent
 response=$(curl localhost:12340 --silent)
+wait $!
+assert_equal 'Target 1' "$(cat response.tmp)"
 assert_equal 'Target 2' "$response"
 response=$(curl localhost:12349 --silent)
 assert_equal 'Target 3' "$response"
