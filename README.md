@@ -59,8 +59,8 @@ docker run -dP --name awesome-service awesome-service:1.0.0
 Now let's make that container's port `8080` available to the outside world on the fixed port `9000`:
 
 ```sh
-# get container IP and Port
-IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' awesome-service)
+# n.b. you must set $DOCKER_GATEWAY_IP yourself.
+IP=$DOCKER_GATEWAY_IP
 PORT=$(docker port awesome-service 8080 | cut -d ':' -f 2)
 
 # update Swish
@@ -81,8 +81,8 @@ $ docker run -dP --name awesome-service awesome-service:1.0.1
 Docker will assign a different host port to the new container, but all we need to do is run the same code as before to tell Swish to switch to the new container:
 
 ```sh
-# get container IP and Port
-IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' awesome-service)
+# n.b. you must set $DOCKER_GATEWAY_IP yourself.
+IP=$DOCKER_GATEWAY_IP
 PORT=$(docker port awesome-service 8080 | cut -d ':' -f 2)
 
 # update Swish
